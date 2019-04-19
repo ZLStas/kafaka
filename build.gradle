@@ -1,0 +1,43 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.4.RELEASE'
+    id 'java'
+    id "com.google.protobuf" version "0.8.8"
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.some'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+ext {
+    springFoxVersion = "2.9.2"
+    protobufVersion = "3.6.1"
+    junitVersion = "5.3.2"
+}
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    implementation("org.apache.commons:commons-lang3:3.8.1")
+    implementation("com.google.protobuf:protobuf-java:${protobufVersion}")
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.apache.kafka:kafka-streams'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation("io.springfox:springfox-swagger2:${springFoxVersion}")
+    implementation("io.springfox:springfox-bean-validators:${springFoxVersion}")
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor("org.projectlombok:lombok")
+
+}
+
+protobuf {
+    generatedFilesBaseDir = "$projectDir/src/main/java/generated"
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+}

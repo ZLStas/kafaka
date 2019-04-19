@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_package = "com.some.kafaka.model.temperature";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+import "TemperatureData.proto";
+import "google/protobuf/timestamp.proto";
+
+message TemperatureEvent {
+
+    string id = 1;
+
+    string created_by = 2;
+
+    google.protobuf.Timestamp created_at = 3;
+
+    oneof event {
+        TemperatureUpserted temperature_upserted = 4;
+    }
+
+}
+
+message TemperatureUpserted {
+    TemperatureData temperature = 1;
+}
