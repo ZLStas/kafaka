@@ -1,8 +1,8 @@
-package com.some.kafaka.service;
+package com.some.kafka.service;
 
 
 import com.google.protobuf.Timestamp;
-import com.some.kafaka.model.dto.TemperatureUpsertDto;
+import com.some.kafka.model.dto.TemperatureUpsertDto;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,21 +18,26 @@ import java.time.Instant;
 public class TemperatureServiceImpl implements TemperatureService {
 
     @NonNull
-    private final KafkaTemplate<String, com.some.kafaka.model.temperature.TemperatureEvent> kafkaTemplate;
+    private final KafkaTemplate<String, com.some.kafka.model.temperature.TemperatureEvent> kafkaTemplate;
 
     @NonNull
     private final Clock clock;
 
     @Override
     public ListenableFuture<Void> upsertTemperature(TemperatureUpsertDto dto) {
-        return publishEvent(createUpsertEvent(dto));
+     return publishEvent(createUpsertEvent(dto));
+    }
+
+    @Override
+    public void testUpsertTemperature(TemperatureUpsertDto dto) {
+        System.out.println(dto.toString());
     }
 
     public ListenableFuture<Void> createTemperature(TemperatureUpsertDto dto) {
         return null;
     }
 
-    private ListenableFuture<Void> publishEvent(com.some.kafaka.model.temperature.TemperatureEvent event) {
+    private ListenableFuture<Void> publishEvent(com.some.kafka.model.temperature.TemperatureEvent event) {
         SettableListenableFuture<Void> future = new SettableListenableFuture<>();
 
         // propagate exceptions and discard result as it is not used
@@ -45,12 +50,12 @@ public class TemperatureServiceImpl implements TemperatureService {
         return future;
     }
 
-    private com.some.kafaka.model.temperature.TemperatureEvent createUpsertEvent(TemperatureUpsertDto dto) {
-        var upserted = com.some.kafaka.model.temperature.TemperatureUpserted.newBuilder().
-                setTemperature(com.some.kafaka.model.temperature.TemperatureData.newBuilder().setValue(dto.getValue()).build())
+    private com.some.kafka.model.temperature.TemperatureEvent createUpsertEvent(TemperatureUpsertDto dto) {
+        var upserted = com.some.kafka.model.temperature.TemperatureUpserted.newBuilder().
+                setTemperature(com.some.kafka.model.temperature.TemperatureData.newBuilder().setValue(dto.getValue()).build())
                 .build();
 
-        var event = com.some.kafaka.model.temperature.TemperatureEvent.
+        var event = com.some.kafka.model.temperature.TemperatureEvent.
                 newBuilder().
                 setCreatedBy(dto.getControllerId()).
                 setCreatedAt(timestamp()).setId(dto.getId()).setTemperatureUpserted(upserted).build();

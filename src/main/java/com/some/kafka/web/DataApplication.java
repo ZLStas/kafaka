@@ -1,14 +1,13 @@
-package com.some.kafaka;
+package com.some.kafka.web;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class KafakaApplication {
+public class DataApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(KafakaApplication.class, args);
+        SpringApplication.run(DataApplication.class, args);
     }
 
 }

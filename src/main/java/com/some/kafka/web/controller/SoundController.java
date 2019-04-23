@@ -1,7 +1,7 @@
-package com.some.kafaka.web.controller;
+package com.some.kafka.web.controller;
 
-import com.some.kafaka.model.dto.SoundUpsertDto;
-import com.some.kafaka.service.SoundService;
+import com.some.kafka.model.dto.SoundUpsertDto;
+import com.some.kafka.service.SoundService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

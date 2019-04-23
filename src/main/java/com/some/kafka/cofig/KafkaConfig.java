@@ -1,4 +1,4 @@
-package com.some.kafaka.cofig;
+package com.some.kafka.cofig;
 
 
 import lombok.*;
@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static com.some.kafaka.cofig.GeneratedMessageSerde.serde;
+import static com.some.kafka.cofig.GeneratedMessageSerde.serde;
 
 
 @Configuration
@@ -44,11 +44,11 @@ public class KafkaConfig {
     }
 
     @Bean("producer-factory-temperature")
-    public ProducerFactory<String, com.some.kafaka.model.temperature.TemperatureEvent> temperatureProducerFactory(KafkaProperties kafka,
-                                                                                                                  KafkaTopicsProperties topics) {
+    public ProducerFactory<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureProducerFactory(KafkaProperties kafka,
+                                                                                                                 KafkaTopicsProperties topics) {
         var temperatureTopic = topics.getTemperature();
 
-        var factory = new DefaultKafkaProducerFactory<String, com.some.kafaka.model.temperature.TemperatureEvent>(
+        var factory = new DefaultKafkaProducerFactory<String, com.some.kafka.model.temperature.TemperatureEvent>(
                 temperatureTopic.buildProducerConfig(kafka.buildProducerProperties()));
 
         factory.setKeySerializer(temperatureTopic.getKeySerializer());
@@ -58,9 +58,9 @@ public class KafkaConfig {
     }
 
     @Bean("template-temperature")
-    public KafkaTemplate<String, com.some.kafaka.model.temperature.TemperatureEvent> temperatureKafkaTemplate(KafkaTopicsProperties topics,
-                                                                                                              @Qualifier("producer-factory-temperature") ProducerFactory<String, com.some.kafaka.model.temperature.TemperatureEvent> factory) {
-        KafkaTemplate<String, com.some.kafaka.model.temperature.TemperatureEvent> kafkaTemplate = new KafkaTemplate<>(factory);
+    public KafkaTemplate<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureKafkaTemplate(KafkaTopicsProperties topics,
+                                                                                                             @Qualifier("producer-factory-temperature") ProducerFactory<String, com.some.kafka.model.temperature.TemperatureEvent> factory) {
+        KafkaTemplate<String, com.some.kafka.model.temperature.TemperatureEvent> kafkaTemplate = new KafkaTemplate<>(factory);
 
         kafkaTemplate.setDefaultTopic(topics.getTemperature().getName());
 
@@ -79,12 +79,12 @@ public class KafkaConfig {
 
         @Valid
         @NotNull
-        private KafkaTopicProperties<String, com.some.kafaka.model.temperature.TemperatureEvent> temperature;
+        private KafkaTopicProperties<String, com.some.kafka.model.temperature.TemperatureEvent> temperature;
 
         @PostConstruct
         private void init() {
             temperature.setKeySerde(Serdes.String());
-            temperature.setValueSerde(serde(com.some.kafaka.model.temperature.TemperatureEvent.class));
+            temperature.setValueSerde(serde(com.some.kafka.model.temperature.TemperatureEvent.class));
 
         }
 

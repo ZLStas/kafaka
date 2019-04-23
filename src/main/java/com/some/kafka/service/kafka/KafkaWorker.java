@@ -1,4 +1,4 @@
-package com.some.kafaka.service.kafka;//package com.diplome.demo.service.kafka;
+package com.some.kafka.service.kafka;//package com.diplome.demo.service.kafka;
 //
 //
 //import lombok.NonNull;

@@ -1,4 +1,4 @@
-package com.some.kafaka.cofig;
+package com.some.kafka.cofig;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;

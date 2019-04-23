@@ -1,4 +1,4 @@
-package com.some.kafaka.model.dto;
+package com.some.kafka.model.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

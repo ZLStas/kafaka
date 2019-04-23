@@ -1,7 +1,7 @@
-package com.some.kafaka.web.controller;
+package com.some.kafka.web.controller;
 
-import com.some.kafaka.model.dto.TemperatureUpsertDto;
-import com.some.kafaka.service.TemperatureService;
+import com.some.kafka.model.dto.TemperatureUpsertDto;
+import com.some.kafka.service.TemperatureService;
 import io.swagger.annotations.*;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +33,8 @@ public class TemperatureController {
                                                                     @ApiParam(value = "Temperature payload for upsert", required = true) @RequestBody(required = false) TemperatureUpsertDto temperature) {
 
         SettableListenableFuture<ResponseEntity<Void>> future = new SettableListenableFuture<>();
-        temperatureService.upsertTemperature(TemperatureUpsertDto.builder().controllerId("434234").value(343).id("4342344").build());
-        // propagate controller ID, and perform sound upsert
+
+         //propagate controller ID, and perform sound upsert
         temperatureService
                 .upsertTemperature(Optional
                         .ofNullable(temperature)

@@ -1,4 +1,4 @@
-package com.some.kafaka.model.dto;
+package com.some.kafka.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

@@ -1,4 +1,4 @@
-package com.some.kafaka.model.models;
+package com.some.kafka.model.models;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.some.kafaka.service.kafka;
+package com.some.kafka.service.kafka;
 
 import com.google.protobuf.Timestamp;
 import lombok.AccessLevel;

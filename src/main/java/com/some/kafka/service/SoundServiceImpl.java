@@ -1,6 +1,6 @@
-package com.some.kafaka.service;
+package com.some.kafka.service;
 
-import com.some.kafaka.model.dto.SoundUpsertDto;
+import com.some.kafka.model.dto.SoundUpsertDto;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
 
