@@ -43,6 +43,11 @@ public class KafkaConfig {
         return topics.getTemperature().toNewTopic();
     }
 
+    @Bean("topic-fire")
+    public NewTopic fireTopic(KafkaTopicsProperties topics) {
+        return topics.getFire().toNewTopic();
+    }
+
     @Bean("producer-factory-temperature")
     public ProducerFactory<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureProducerFactory(KafkaProperties kafka,
                                                                                                                  KafkaTopicsProperties topics) {
@@ -55,6 +60,30 @@ public class KafkaConfig {
         factory.setValueSerializer(temperatureTopic.getValueSerializer());
 
         return factory;
+    }
+
+    @Bean("producer-factory-fire")
+    public ProducerFactory<String, com.some.kafka.model.fire.FireEvent> fireProducerFactory(KafkaProperties kafka,
+                                                                                                                 KafkaTopicsProperties topics) {
+        var fireTopic = topics.getFire();
+
+        var factory = new DefaultKafkaProducerFactory<String, com.some.kafka.model.fire.FireEvent>(
+                fireTopic.buildProducerConfig(kafka.buildProducerProperties()));
+
+        factory.setKeySerializer(fireTopic.getKeySerializer());
+        factory.setValueSerializer(fireTopic.getValueSerializer());
+
+        return factory;
+    }
+
+    @Bean("template-fire")
+    public KafkaTemplate<String, com.some.kafka.model.fire.FireEvent> fireKafkaTemplate(KafkaTopicsProperties topics,
+                                                                                                             @Qualifier("producer-factory-fire") ProducerFactory<String, com.some.kafka.model.fire.FireEvent> factory) {
+        KafkaTemplate<String, com.some.kafka.model.fire.FireEvent> kafkaTemplate = new KafkaTemplate<>(factory);
+
+        kafkaTemplate.setDefaultTopic(topics.getFire().getName());
+
+        return kafkaTemplate;
     }
 
     @Bean("template-temperature")
@@ -81,10 +110,17 @@ public class KafkaConfig {
         @NotNull
         private KafkaTopicProperties<String, com.some.kafka.model.temperature.TemperatureEvent> temperature;
 
+        @Valid
+        @NotNull
+        private KafkaTopicProperties<String, com.some.kafka.model.fire.FireEvent> fire;
+
         @PostConstruct
         private void init() {
             temperature.setKeySerde(Serdes.String());
             temperature.setValueSerde(serde(com.some.kafka.model.temperature.TemperatureEvent.class));
+
+            fire.setKeySerde(Serdes.String());
+            fire.setValueSerde(serde(com.some.kafka.model.fire.FireEvent.class));
 
         }
 
@@ -199,6 +235,10 @@ public class KafkaConfig {
         @Valid
         @NotNull
         private KafkaWorkerProperties temperature;
+
+        @Valid
+        @NotNull
+        private KafkaWorkerProperties fire;
 
         @Data
         public static class KafkaWorkerProperties {

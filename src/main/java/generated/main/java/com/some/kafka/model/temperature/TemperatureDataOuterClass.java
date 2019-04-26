@@ -29,8 +29,8 @@ public final class TemperatureDataOuterClass {
   static {
     java.lang.String[] descriptorData = {
       "\n\025TemperatureData.proto\" \n\017TemperatureDa" +
-      "ta\022\r\n\005value\030\001 \001(\005B\'\n!com.some.kafaka.mod" +
-      "el.temperatureH\001P\001b\006proto3"
+      "ta\022\r\n\005value\030\001 \001(\005B&\n com.some.kafka.mode" +
+      "l.temperatureH\001P\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

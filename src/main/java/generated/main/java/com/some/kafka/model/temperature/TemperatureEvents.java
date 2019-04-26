@@ -40,8 +40,8 @@ public final class TemperatureEvents {
       "gle.protobuf.Timestamp\0224\n\024temperature_up" +
       "serted\030\004 \001(\0132\024.TemperatureUpsertedH\000B\007\n\005" +
       "event\"<\n\023TemperatureUpserted\022%\n\013temperat" +
-      "ure\030\001 \001(\0132\020.TemperatureDataB\'\n!com.some." +
-      "kafaka.model.temperatureH\001P\001b\006proto3"
+      "ure\030\001 \001(\0132\020.TemperatureDataB&\n com.some." +
+      "kafka.model.temperatureH\001P\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

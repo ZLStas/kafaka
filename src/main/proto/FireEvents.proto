@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+option java_package = "com.some.kafka.model.fire";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+
+import "google/protobuf/timestamp.proto";
+
+message FireEvent {
+
+    string id = 1;
+
+    string created_by = 2;
+
+    google.protobuf.Timestamp created_at = 3;
+
+    oneof event {
+        FireWarning fire_warning = 4;
+        FireStarted fire_started = 5;
+        FireStopped fire_stopped = 6;
+    }
+
+}
+
+message FireWarning {
+}
+message FireStarted {
+}
+message FireStopped {
+}

@@ -289,7 +289,7 @@ private static final long serialVersionUID = 0L;
               com.some.kafka.model.temperature.TemperatureUpserted.class, com.some.kafka.model.temperature.TemperatureUpserted.Builder.class);
     }
 
-    // Construct using com.some.kafaka.model.temperature.TemperatureUpserted.newBuilder()
+    // Construct using com.some.kafka.model.temperature.TemperatureUpserted.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -528,7 +528,7 @@ private static final long serialVersionUID = 0L;
      * <code>.TemperatureData temperature = 1;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-        com.some.kafka.model.temperature.TemperatureData, com.some.kafka.model.temperature.TemperatureData.Builder, com.some.kafka.model.temperature.TemperatureDataOrBuilder>
+        com.some.kafka.model.temperature.TemperatureData, com.some.kafka.model.temperature.TemperatureData.Builder, com.some.kafka.model.temperature.TemperatureDataOrBuilder> 
         getTemperatureFieldBuilder() {
       if (temperatureBuilder_ == null) {
         temperatureBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<

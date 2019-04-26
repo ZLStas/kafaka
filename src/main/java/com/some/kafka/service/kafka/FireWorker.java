@@ -15,66 +15,39 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Optional;
 
 import static com.some.kafka.cofig.KafkaConfig.KafkaTopicsProperties.KafkaTopicProperties;
 
 @Slf4j
 @Service
 @ConditionalOnProperty(name = "kafka.workers.temperature.enabled", matchIfMissing = true)
-public class TemperatureWorker extends KafkaWorker {
+public class FireWorker extends KafkaWorker {
 
-    private final KafkaTopicProperties<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureTopic;
-    private final TemperatureService temperatureService;
+    private final KafkaTopicProperties<String, com.some.kafka.model.fire.FireEvent> fireTopic;
     private final FireService fireService;
     private final Clock clock;
 
     @Autowired
-    public TemperatureWorker(@NonNull KafkaProperties kafkaProperties,
-                             @Value("#{kafkaWorkersProperties.temperature}") KafkaWorkerProperties workerProperties,
-                             @Value("#{kafkaTopicsProperties.temperature}") @NonNull KafkaTopicProperties<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureTopic,
-                             TemperatureService temperatureService, FireService fireService, @NonNull Clock clock) {
+    public FireWorker(@NonNull KafkaProperties kafkaProperties,
+                      @Value("#{kafkaWorkersProperties.fire}") KafkaWorkerProperties workerProperties,
+                      @Value("#{kafkaTopicsProperties.fire}") @NonNull KafkaTopicProperties<String, com.some.kafka.model.fire.FireEvent> fireTopic,
+                      TemperatureService temperatureService, FireService fireService, @NonNull Clock clock) {
         super(kafkaProperties, workerProperties);
-        this.temperatureTopic = temperatureTopic;
-        this.temperatureService = temperatureService;
+        this.fireTopic = fireTopic;
         this.fireService = fireService;
         this.clock = clock;
     }
 
     @Override
     protected void createTopology(@NonNull StreamsBuilder builder) {
-        temperatureStream(builder);
+        fireStream(builder);
     }
 
-    private void temperatureStream(StreamsBuilder builder) {
-        var topic = builder.stream(temperatureTopic.getName(), temperatureTopic.consumed());
-        topic.peek((key, value) -> checkFire(value)).foreach(((key, value) -> System.out.println(key + value)));
+    private void fireStream(StreamsBuilder builder) {
+        builder.stream(fireTopic.getName(), fireTopic.consumed()).foreach((key, value) -> System.out.println(key + value));
+
     }
 
-
-    private void checkFire(com.some.kafka.model.temperature.TemperatureEvent event) {
-        switch (temperature){
-
-        }
-        if (getPayload(event).isPresent() && getPayload(event).get() > 55) {
-            fireService.publishEvent(temperatureToFireStarted(event));
-        }
-    }
-
-    private Optional<Integer> getPayload(com.some.kafka.model.temperature.TemperatureEvent event) {
-        return Optional.ofNullable(event.getTemperatureUpserted().getTemperature().getValue());
-    }
-
-    public com.some.kafka.model.fire.FireEvent temperatureToFireStarted(com.some.kafka.model.temperature.TemperatureEvent temperatureEvent) {
-
-        com.some.kafka.model.fire.FireStarted fireStarted = com.some.kafka.model.fire.FireStarted.newBuilder().build();
-        var event = com.some.kafka.model.fire.FireEvent.
-                newBuilder().
-                setCreatedBy(temperatureEvent.getCreatedBy()).
-                setCreatedAt(timestamp()).setId(temperatureEvent.getId()).setFireStarted(fireStarted).build();
-
-        return event;
-    }
 
     public com.some.kafka.model.fire.FireEvent temperatureToFireWarning(com.some.kafka.model.temperature.TemperatureEvent temperatureEvent) {
 
