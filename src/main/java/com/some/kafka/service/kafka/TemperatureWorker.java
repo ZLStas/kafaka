@@ -49,8 +49,7 @@ public class TemperatureWorker extends KafkaWorker {
     protected void createTopology(@NonNull StreamsBuilder builder) {
         var temperatureStream = temperatureStream(builder);
         var fireTable = fireTable(builder);
-        fireStream(temperatureStream, fireTable).groupByKey().reduce((oldValue, newValue) -> newValue);
-
+        fireStream(temperatureStream, fireTable).groupByKey().reduce((oldValue, newValue) -> newValue).toStream().foreach(((key, value) -> System.out.println(key =" =++++++++> " + value)));
     }
 
     private KStream<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureStream(StreamsBuilder builder) {
