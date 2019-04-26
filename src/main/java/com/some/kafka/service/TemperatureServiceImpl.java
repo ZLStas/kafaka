@@ -37,10 +37,6 @@ public class TemperatureServiceImpl implements TemperatureService {
         return null;
     }
 
-
-
-
-
     private ListenableFuture<Void> publishEvent(com.some.kafka.model.temperature.TemperatureEvent event) {
         SettableListenableFuture<Void> future = new SettableListenableFuture<>();
 
