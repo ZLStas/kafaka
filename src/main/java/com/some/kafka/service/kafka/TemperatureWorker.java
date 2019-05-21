@@ -7,7 +7,9 @@ import com.some.kafka.service.FireService;
 import com.some.kafka.service.TemperatureService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.kstream.Joined;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,38 +49,41 @@ public class TemperatureWorker extends KafkaWorker {
 
     @Override
     protected void createTopology(@NonNull StreamsBuilder builder) {
-        var temperatureStream = temperatureStream(builder);
+        var temperatureTable = temperatureTable(builder);
+
+        temperatureTable.toStream().foreach((k,e) -> checkFireState());
         var fireTable = fireTable(builder);
         fireStream(temperatureStream, fireTable).groupByKey().reduce((oldValue, newValue) -> newValue).toStream().foreach(((key, value) -> System.out.println(key =" =++++++++> " + value)));
     }
 
-    private KStream<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureStream(StreamsBuilder builder) {
-        return builder.stream(this.temperatureTopic.getName(), this.temperatureTopic.consumed());
+
+    private KTable<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureTable(StreamsBuilder builder) {
+        return builder.table(this.temperatureTopic.getName(), this.temperatureTopic.consumed());
     }
 
-    private KStream<String, FireEvent> fireStream(KStream<String, TemperatureEvent> temperatureStream, KTable<String, FireEvent> fireTable) {
-        return temperatureStream.join(fireTable, (temperature, fire) -> checkFireState(temperature, fire));
+
+    private KStream<String, FireEvent> fireStream(KTable<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureTable,KTable<String, FireEvent> fireTable) {
+        return temperatureTable.toStream().leftJoin(fireTable,
+            (leftValue, rightValue) -> updateFireState(leftValue, rightValue),
+            Joined.keySerde(this.temperatureTopic.getKeySerde().serializer())
+                .withValueSerde(fireTopic.getValueSerde())); /* key */
     }
 
-    private KTable<String, FireEvent> fireTable(@NonNull StreamsBuilder builder) {
-        return builder.table(this.fireTopic.getName(), this.fireTopic.consumed());
-    }
+    private FireEvent updateFireState(TemperatureEvent temperatureEvent, FireEvent fireEvent) {
+        Integer temeperature = temperatureEvent.getTemperatureUpserted().getTemperature().getValue();
 
-    private FireEvent checkFireState(TemperatureEvent event, FireEvent fire) {
-        Integer temeperature = event.getTemperatureUpserted().getTemperature().getValue();
-
-        if (fire.hasFireStarted() && temeperature < 55) {
-            return temperatureToFireStopped(event);
+        if (fireEvent.hasFireStarted() && temeperature < 55) {
+            return temperatureToFireStopped(temperatureEvent);
         }
         if (temeperature > 55) {
-            return temperatureToFireStarted(event);
+            return temperatureToFireStarted(temperatureEvent);
 
         }
         if (temeperature >= 37) {
-            return temperatureToFireWarning(event);
+            return temperatureToFireWarning(temperatureEvent);
         }
 
-        return fire;
+        return fireEvent;
     }
 
 

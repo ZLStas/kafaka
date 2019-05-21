@@ -25,7 +25,7 @@ public class TemperatureServiceImpl implements TemperatureService {
 
     @Override
     public ListenableFuture<Void> upsertTemperature(TemperatureUpsertDto dto) {
-     return publishEvent(createUpsertEvent(dto));
+        return publishEvent(createUpsertEvent(dto));
     }
 
     @Override
@@ -42,23 +42,23 @@ public class TemperatureServiceImpl implements TemperatureService {
 
         // propagate exceptions and discard result as it is not used
         kafkaTemplate
-                .sendDefault(event.getId(), event)
-                .addCallback(result -> {
-                    future.set(null);
-                }, future::setException);
+            .sendDefault(event.getId(), event)
+            .addCallback(result -> {
+                future.set(null);
+            }, future::setException);
 
         return future;
     }
 
     private com.some.kafka.model.temperature.TemperatureEvent createUpsertEvent(TemperatureUpsertDto dto) {
         var upserted = com.some.kafka.model.temperature.TemperatureUpserted.newBuilder().
-                setTemperature(com.some.kafka.model.temperature.TemperatureData.newBuilder().setValue(dto.getValue()).build())
-                .build();
+            setTemperature(com.some.kafka.model.temperature.TemperatureData.newBuilder().setValue(dto.getValue()).build())
+            .build();
 
         var event = com.some.kafka.model.temperature.TemperatureEvent.
-                newBuilder().
-                setCreatedBy(dto.getControllerId()).
-                setCreatedAt(timestamp()).setId(dto.getId()).setTemperatureUpserted(upserted).build();
+            newBuilder().
+            setCreatedBy(dto.getControllerId()).
+            setCreatedAt(timestamp()).setId(dto.getId()).setTemperatureUpserted(upserted).build();
 
         return event;
     }
