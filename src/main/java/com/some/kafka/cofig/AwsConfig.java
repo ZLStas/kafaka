@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class AwsConfig {
 
     @Bean
-    public AmazonDynamoDB dynamoDB(@Value("${storage.s3.region}") String region, AWSCredentialsProvider credentials) {
+    public AmazonDynamoDB dynamoDB(@Value("${storage.dynamoDB.region}") String region, AWSCredentialsProvider credentials) {
         return  AmazonDynamoDBClientBuilder.standard()
             .withRegion(region)
             .withCredentials(credentials)
@@ -21,7 +21,7 @@ public class AwsConfig {
     }
 
     @Bean
-    public AWSCredentialsProvider awsCredentials(@Value("${storage.s3.key}") String key, @Value("${storage.s3.secret}") String secret) {
+    public AWSCredentialsProvider awsCredentials(@Value("${storage.dynamoDB.key}") String key, @Value("${storage.dynamoDB.secret}") String secret) {
         return new AWSStaticCredentialsProvider(new BasicAWSCredentials(key, secret));
     }
 

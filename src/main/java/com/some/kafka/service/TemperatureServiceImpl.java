@@ -2,7 +2,9 @@ package com.some.kafka.service;
 
 
 import com.google.protobuf.Timestamp;
+import com.some.kafka.dao.TemperatureDao;
 import com.some.kafka.model.dto.TemperatureUpsertDto;
+import com.some.kafka.model.models.Temperature;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -23,9 +25,17 @@ public class TemperatureServiceImpl implements TemperatureService {
     @NonNull
     private final Clock clock;
 
+    @NonNull
+    private TemperatureDao temperatureDao;
+
     @Override
     public ListenableFuture<Void> upsertTemperature(TemperatureUpsertDto dto) {
         return publishEvent(createUpsertEvent(dto));
+    }
+
+    @Override
+    public Temperature getTemperature(String id) {
+        return temperatureDao.getTemperature(id);
     }
 
     @Override
