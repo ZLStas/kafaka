@@ -1,0 +1,61 @@
+{
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "Id",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "createdBy",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "editedBy",
+      "AttributeType": "S"
+    }
+  ],
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "Microcontroller-creation-index",
+      "Projection": {
+        "ProjectionType": "ALL"
+      },
+      "ProvisionedThroughput": {
+        "WriteCapacityUnits": 5,
+        "ReadCapacityUnits": 5
+      },
+      "KeySchema": [
+        {
+          "KeyType": "HASH",
+          "AttributeName": "createdBy"
+        }
+      ]
+    },
+    {
+      "IndexName": "Microcontroller-edition-index",
+      "Projection": {
+        "ProjectionType": "ALL"
+      },
+      "ProvisionedThroughput": {
+        "WriteCapacityUnits": 5,
+        "ReadCapacityUnits": 5
+      },
+      "KeySchema": [
+        {
+          "KeyType": "HASH",
+          "AttributeName": "editedBy"
+        }
+      ]
+    }
+  ],
+  "ProvisionedThroughput": {
+    "WriteCapacityUnits": 5,
+    "ReadCapacityUnits": 5
+  },
+  "TableName": "Temperature",
+  "KeySchema": [
+    {
+      "KeyType": "HASH",
+      "AttributeName": "Id"
+    }
+  ]
+}
