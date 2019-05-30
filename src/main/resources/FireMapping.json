@@ -9,7 +9,7 @@
     "WriteCapacityUnits": 5,
     "ReadCapacityUnits": 5
   },
-  "TableName": "Temperature",
+  "TableName": "Fire",
   "KeySchema": [
     {
       "KeyType": "HASH",

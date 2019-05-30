@@ -2,8 +2,10 @@ package com.some.kafka.service.kafka;
 
 import com.google.protobuf.Timestamp;
 import com.some.kafka.cofig.KafkaConfig.KafkaWorkersProperties.KafkaWorkerProperties;
+import com.some.kafka.dao.FireDaoImpl;
 import com.some.kafka.dao.TemperatureDaoImpl;
 import com.some.kafka.model.fire.FireEvent;
+import com.some.kafka.model.models.Fire;
 import com.some.kafka.model.models.Temperature;
 import com.some.kafka.model.temperature.TemperatureEvent;
 import com.some.kafka.service.FireService;
@@ -42,13 +44,14 @@ public class TemperatureWorker extends KafkaWorker {
     private Serde<FireEvent> fireEventSerde;
     private Serde<String> stringSerde;
     private TemperatureDaoImpl temperatureDao;
+    private FireDaoImpl fireDao;
 
     @Autowired
     public TemperatureWorker(@NonNull KafkaProperties kafkaProperties,
                              @Value("#{kafkaWorkersProperties.temperature}") KafkaWorkerProperties workerProperties,
                              @Value("#{kafkaTopicsProperties.temperature}") @NonNull KafkaTopicProperties<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureTopic,
                              @Value("#{kafkaTopicsProperties.fire}") @NonNull KafkaTopicProperties<String, com.some.kafka.model.fire.FireEvent> fireTopic,
-                             TemperatureService temperatureService, FireService fireService, @NonNull Clock clock, TemperatureDaoImpl temperatureDao) {
+                             TemperatureService temperatureService, FireService fireService, @NonNull Clock clock, TemperatureDaoImpl temperatureDao, FireDaoImpl fireDao) {
         super(kafkaProperties, workerProperties);
         this.temperatureTopic = temperatureTopic;
         this.fireTopic = fireTopic;
@@ -56,10 +59,7 @@ public class TemperatureWorker extends KafkaWorker {
         this.fireService = fireService;
         this.clock = clock;
         this.temperatureDao = temperatureDao;
-    }
-
-    public static Long timestampToLong(Timestamp time) {
-        return time != null ? time.getSeconds():null;
+        this.fireDao = fireDao;
     }
 
     @PostConstruct
@@ -68,12 +68,17 @@ public class TemperatureWorker extends KafkaWorker {
         this.stringSerde = Serdes.String();
     }
 
+    private static Long timestampToLong(Timestamp time) {
+        return time != null ? time.getSeconds() : null;
+    }
+
     @Override
     protected void createTopology(@NonNull StreamsBuilder builder) {
         var temperatureStream = temperatureStream(builder);
         temperatureStream.foreach(this::updateTemperatureData);
-        fireTable(temperatureStream).toStream().foreach((key, value) -> System.out.println(value));
+        fireTable(temperatureStream).toStream().foreach((key, value) -> fireDao.saveFire(fireEventToFire(value)));
     }
+
 
     private KStream<String, com.some.kafka.model.temperature.TemperatureEvent> temperatureStream(StreamsBuilder builder) {
         return builder.stream(this.temperatureTopic.getName(), this.temperatureTopic.consumed());
@@ -84,27 +89,33 @@ public class TemperatureWorker extends KafkaWorker {
             .aggregate(FireEvent::getDefaultInstance, this::updateFireState, Materialized.as("fire-store").with(stringSerde, fireEventSerde));
     }
 
+    private Fire fireEventToFire(FireEvent fireEvent) {
+        return Fire.builder().id(fireEvent.getId())
+            .createdAt(timestampToLong(fireEvent.getCreatedAt()))
+            .createdBy(fireEvent.getCreatedBy())
+            .status(fireEvent.getEventCase().name()).build();
+    }
+
     private void updateTemperatureData(String key, TemperatureEvent event) {
         Temperature temperature = temperatureEventToTemperature(event);
-        System.out.println("Colling save method : " + temperature);
+        log.info("Colling save method on record with key : " + key + " and payload : " + temperature);
         temperatureDao.saveTemperature(temperature);
     }
 
     private Temperature temperatureEventToTemperature(com.some.kafka.model.temperature.TemperatureEvent event) {
         Temperature.TemperatureBuilder builder = Temperature.builder()
             .id(event.getId())
-            .value(event.getTemperatureUpserted().getTemperature().getValue());//TODO investigate created end updated cases
+            .value(event.getTemperatureUpserted().getTemperature().getValue());
 
         Temperature oldValue = temperatureService.getTemperature(event.getId());
-        Optional<Temperature> tempOpt = Optional.ofNullable(oldValue);
 
-        if (tempOpt.isEmpty() || Optional.ofNullable(oldValue.getCreatedAt()).isEmpty()) {
+        if (Optional.ofNullable(oldValue).isEmpty()) {
             builder.createdAt(timestampToLong(event.getCreatedAt()));
             builder.createdBy(event.getCreatedBy());
         } else {
             builder.editedAt(timestampToLong(event.getCreatedAt()));
             builder.editedBy(event.getCreatedBy());
-            builder.createdAt(oldValue.getEditedAt());
+            builder.createdAt(oldValue.getCreatedAt());
             builder.createdBy(oldValue.getCreatedBy());
         }
 
@@ -123,7 +134,7 @@ public class TemperatureWorker extends KafkaWorker {
         return temperatureToFireWarning(newTemperatureEvent);
     }
 
-    public com.some.kafka.model.fire.FireEvent temperatureToFireStarted(com.some.kafka.model.temperature.TemperatureEvent temperatureEvent) {
+    private com.some.kafka.model.fire.FireEvent temperatureToFireStarted(com.some.kafka.model.temperature.TemperatureEvent temperatureEvent) {
 
         com.some.kafka.model.fire.FireStarted fireStarted = com.some.kafka.model.fire.FireStarted.newBuilder().build();
         var event = com.some.kafka.model.fire.FireEvent.
@@ -134,7 +145,7 @@ public class TemperatureWorker extends KafkaWorker {
         return event;
     }
 
-    public com.some.kafka.model.fire.FireEvent temperatureToFireWarning(com.some.kafka.model.temperature.TemperatureEvent temperatureEvent) {
+    private com.some.kafka.model.fire.FireEvent temperatureToFireWarning(com.some.kafka.model.temperature.TemperatureEvent temperatureEvent) {
 
         com.some.kafka.model.fire.FireWarning fireWarning = com.some.kafka.model.fire.FireWarning.newBuilder().build();
 
@@ -146,7 +157,7 @@ public class TemperatureWorker extends KafkaWorker {
         return event;
     }
 
-    public com.some.kafka.model.fire.FireEvent temperatureToFireStopped(com.some.kafka.model.temperature.TemperatureEvent temperatureEvent) {
+    private com.some.kafka.model.fire.FireEvent temperatureToFireStopped(com.some.kafka.model.temperature.TemperatureEvent temperatureEvent) {
 
         com.some.kafka.model.fire.FireStopped fireStopped = com.some.kafka.model.fire.FireStopped.newBuilder().build();
 
@@ -157,5 +168,6 @@ public class TemperatureWorker extends KafkaWorker {
 
         return event;
     }
+
 
 }

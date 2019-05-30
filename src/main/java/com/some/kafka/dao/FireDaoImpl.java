@@ -2,28 +2,22 @@ package com.some.kafka.dao;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.some.kafka.model.models.Temperature;
+import com.some.kafka.model.models.Fire;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class TemperatureDaoImpl implements TemperatureDao {
+public class FireDaoImpl implements FireDao {
 
     @NonNull
     private AmazonDynamoDB client;
 
     @Override
-    public void saveTemperature(Temperature temperature) {
+    public void saveFire(Fire fire) {
         DynamoDBMapper mapper = new DynamoDBMapper(client);
-        mapper.save(temperature);
+        mapper.save(fire);
     }
 
-    @Override
-    public Temperature getTemperature(String id) {
-        DynamoDBMapper mapper = new DynamoDBMapper(client);
-        return mapper.load(Temperature.class, id);
-
-    }
 }
