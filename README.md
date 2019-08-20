@@ -1,2 +1,2 @@
 # kafaka
-My Diploma =)
+My Diploma and sandbox to play around with some stuff =)
